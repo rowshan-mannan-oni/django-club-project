@@ -4,10 +4,9 @@ from club.models import Club
 from utils.choices import Role, RequestStatus
 
 class Membership(models.Model):
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='memberships')
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='memberships')
-    role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
+    role = models.CharField(max_length=20, choices=Role, default=Role.MEMBER)
     joined_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
@@ -25,7 +24,7 @@ class MembershipRequest(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='membership_requests')
     status = models.CharField(
         max_length=10,
-        choices=RequestStatus.choices,
+        choices=RequestStatus,
         default=RequestStatus.PENDING
     )
     requested_at = models.DateTimeField(auto_now_add=True)

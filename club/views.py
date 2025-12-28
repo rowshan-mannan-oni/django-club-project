@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic import CreateView, DetailView
 
-from membership.models import MembershipRequest
+from membership.models import MembershipRequest, Membership
 from user.mixin import CustomLoginRequiredMixin
 from .forms import ClubForm
 from .models import Club
@@ -35,13 +35,22 @@ class ClubDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        membership_request_status = None
-
+        # Membership request status for join button
         if user.is_authenticated:
-            membership_request_status = MembershipRequest.objects.filter(
-                user=user, club=self.object
-            ).values_list('status', flat=True).first()
+            membership_request = MembershipRequest.objects.filter(user=user, club=self.object).first()
+            if membership_request:
+                context["membership_request_status"] = membership_request.status
+            else:
+                context["membership_request_status"] = None
 
-        context['membership_request_status'] = membership_request_status
+            # User's membership role (if any)
+            membership = Membership.objects.filter(user=user, club=self.object).first()
+            if membership:
+                context["user_role"] = membership.role
+            else:
+                context["user_role"] = None
+        else:
+            context["membership_request_status"] = None
+            context["user_role"] = None
 
         return context

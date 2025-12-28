@@ -8,7 +8,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     type = models.CharField(
         max_length=10,
-        choices=PostType.choices,
+        choices=PostType,
         default=PostType.BLOG
     )
     title = models.CharField(max_length=255)
