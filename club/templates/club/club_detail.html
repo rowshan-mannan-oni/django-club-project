@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ club.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-start mb-4">
+        <h1 class="text-3xl font-bold">{{ club.name }}</h1>
+
+        <!-- Join Button Section -->
+        <div>
+          {% if user.is_authenticated %}
+              {% if not membership_request_status %}
+                    <form method="post" action="{% url 'membership:request_create' club.slug %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Join Club
+                        </button>
+                    </form>
+                {% else %}
+                    {% if membership_request_status == 'PENDING' %}
+                        <span class="px-4 py-2 bg-gray-300 text-gray-700 rounded">Request Sent</span>
+                    {% elif membership_request_status == 'REJECTED' %}
+                        <span class="px-4 py-2 bg-gray-300 text-red-600 rounded">Request Rejected</span>
+                    {% elif membership_request_status == 'APPROVED' %}
+                        <span class="px-4 py-2 bg-green-600 text-white rounded">Member</span>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <a href="{% url 'user:login' %}"
+                   class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Login to Join
+                </a>
+          {% endif %}
+        </div>
+    </div>
+
+    {% if club.description %}
+        <p class="text-gray-700 mb-6">
+            {{ club.description }}
+        </p>
+    {% else %}
+        <p class="text-gray-400 italic mb-6">
+            No description provided.
+        </p>
+    {% endif %}
+
+    <div class="text-sm text-gray-500">
+        Created by <span class="font-medium">{{ club.created_by.username }}</span>
+        on {{ club.created_at|date:"F j, Y" }}
+    </div>
+
+    <div class="mt-6">
+        <a href="{% url 'club:club_list' %}"
+           class="text-blue-600 hover:underline">
+            ← Back to clubs
+        </a>
+    </div>
+</div>
+{% endblock %}

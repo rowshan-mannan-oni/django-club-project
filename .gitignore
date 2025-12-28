@@ -1,7 +1,23 @@
-.idea
+# Idea
+.idea/
+.fleet/
 
+# VS code
+.vscode
+
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__
+*.sqlite3
+media
+venv/
 .env
+ENV/
 
-.venv
+# tailwind
+node_modules/
+static/css/output.css
 
-VENV/
+hrythmic_2.0_templates
