@@ -3,14 +3,27 @@
 {% block title %}{{ club.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto bg-white shadow rounded-lg p-6">
+<div class="max-w-4xl mx-auto bg-white shadow rounded-lg p-6">
+
+    <!-- Top row: Back button + Club name + actions -->
     <div class="flex justify-between items-start mb-4">
-    <h1 class="text-3xl font-bold">{{ club.name }}</h1>
+        <div class="flex flex-col">
+            <a href="{% url 'club:club_list' %}"
+               class="text-blue-600 hover:underline mb-2">
+                ← Back to clubs
+            </a>
+            <h1 class="text-3xl font-bold">{{ club.name }}</h1>
+        </div>
 
         <div class="flex gap-2">
-            {% if user.is_authenticated and user_role in 'CLUB_ADMIN, CLUB_MODERATOR' %}
+
+            {% if user.is_authenticated and user_role in 'CLUB_ADMIN' %}
+                <a href="{% url 'membership:membership_list' club.slug %}"
+                   class="px-4 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-600">
+                    View All Members
+                </a>
                 <a href="{% url 'membership:club_requests' club.slug %}"
-                   class="px-4 py-2 text-black rounded hover:bg-yellow-600">
+                   class="px-4 py-2 text-black rounded bg-yellow-400 hover:bg-yellow-600">
                     View All Requests
                 </a>
             {% endif %}
@@ -28,11 +41,11 @@
                                 </button>
                             </form>
                         {% else %}
-                            {% if membership_request_status == 'PENDING' %}
+                            {% if membership_request_status == RequestStatus.PENDING %}
                                 <span class="px-4 py-2 bg-gray-300 text-gray-700 rounded">Request Sent</span>
-                            {% elif membership_request_status == 'REJECTED' %}
+                            {% elif membership_request_status == RequestStatus.REJECTED %}
                                 <span class="px-4 py-2 bg-gray-300 text-red-600 rounded">Request Rejected</span>
-                            {% elif membership_request_status == 'APPROVED' %}
+                            {% elif membership_request_status == RequestStatus.APPROVED %}
                                 <span class="px-4 py-2 bg-green-600 text-white rounded">Member</span>
                             {% endif %}
                         {% endif %}
@@ -47,7 +60,6 @@
         </div>
     </div>
 
-
     {% if club.description %}
         <p class="text-gray-700 mb-6">
             {{ club.description }}
@@ -57,17 +69,14 @@
             No description provided.
         </p>
     {% endif %}
-
+    {% if user.is_authenticated %}
+        {% include "post/post_form.html" %}
+    {% endif %}
+    {% include "post/post_list.html" %}
     <div class="text-sm text-gray-500">
         Created by <span class="font-medium">{{ club.created_by.username }}</span>
         on {{ club.created_at|date:"F j, Y" }}
     </div>
 
-    <div class="mt-6">
-        <a href="{% url 'club:club_list' %}"
-           class="text-blue-600 hover:underline">
-            ← Back to clubs
-        </a>
-    </div>
 </div>
 {% endblock %}
