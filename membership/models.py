@@ -18,6 +18,10 @@ class Membership(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.club.name} ({self.role})"
 
+    @property
+    def is_admin_or_moderator(self):
+        return self.role == Role.ADMIN or self.role == Role.MODERATOR
+
 
 class MembershipRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='membership_requests')

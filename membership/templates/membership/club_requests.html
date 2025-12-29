@@ -5,12 +5,13 @@
 {% block content %}
 <h1 class="text-2xl font-bold mb-4">Membership Requests for {{ club.name }}</h1>
 
-<table class="min-w-full border">
+<table class="min-w-full border text-center">
     <thead>
         <tr class="bg-gray-100">
             <th class="px-4 py-2 border">User</th>
             <th class="px-4 py-2 border">Status</th>
             <th class="px-4 py-2 border">Requested At</th>
+            <th class="px-4 py-2 border">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -18,15 +19,45 @@
         <tr>
             <td class="px-4 py-2 border">{{ req.user.username }}</td>
             <td class="px-4 py-2 border">{{ req.status }}</td>
-            <td class="px-4 py-2 border">{{ req.requested_at|date:"F j, Y H:i" }}</td>
+            <td class="px-4 py-2 border">
+                {{ req.requested_at|date:"F j, Y H:i" }}
+            </td>
+            {% if req.status == "PENDING" %}
+                <td class="px-4 py-2 border flex gap-2 justify-center">
+                    <form method="post" action="{% url 'membership:membership_request_action' club.slug %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="request_id" value="{{ req.id }}">
+                        <input type="hidden" name="action" value="accept">
+                        <button type="submit"
+                                class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                            Accept
+                        </button>
+                    </form>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="request_id" value="{{ req.id }}">
+                        <input type="hidden" name="action" value="reject">
+                        <button type="submit"
+                                class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                            Reject
+                        </button>
+                    </form>
+                </td>
+            {% endif %}
         </tr>
         {% empty %}
         <tr>
-            <td colspan="3" class="px-4 py-2 border text-center">No requests found.</td>
+            <td colspan="4" class="px-4 py-2 border text-center">
+                No requests found.
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<a href="{% url 'club:club_detail' club.slug %}" class="text-blue-600 hover:underline mt-4 inline-block">← Back to Club</a>
+<a href="{% url 'club:club_detail' club.slug %}"
+   class="text-blue-600 hover:underline mt-4 inline-block">
+    ← Back to Club
+</a>
 {% endblock %}

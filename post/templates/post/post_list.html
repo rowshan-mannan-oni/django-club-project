@@ -1,0 +1,115 @@
+<div class="mt-6">
+    <h2 class="text-xl font-bold mb-2">Posts</h2>
+
+    <!-- Tabs -->
+    <div class="flex border-b mb-4">
+        <button class="tab-button px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none"
+                data-tab="blog">Blogs</button>
+        <button class="tab-button px-4 py-2 font-medium text-gray-500 border-b-2 border-transparent hover:text-blue-600 focus:outline-none"
+                data-tab="news">News</button>
+    </div>
+
+    <!-- Blog Tab Content -->
+    <div id="blog" class="tab-content">
+        {% if user.is_authenticated %}
+            {% if blog_posts %}
+                {% for post in blog_posts %}
+                    <div class="p-4 border rounded shadow bg-white mb-4">
+                        <h3 class="text-lg font-semibold">{{ post.title }}</h3>
+                        <p class="text-gray-700 mt-1">{{ post.content|truncatewords:50 }}</p>
+                        <div class="text-sm text-gray-500 mt-2">
+                            By {{ post.author.username }} on {{ post.created_at|date:"F j, Y H:i" }}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Blog Pagination -->
+                <div class="flex justify-between mt-4">
+                    {% if blog_posts.has_previous %}
+                        <a href="?blog_page={{ blog_posts.previous_page_number }}&tab=blog" class="text-blue-600 hover:underline">Previous</a>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                    {% if blog_posts.has_next %}
+                        <a href="?blog_page={{ blog_posts.next_page_number }}&tab=blog" class="text-blue-600 hover:underline">Next</a>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p class="text-gray-400 italic">No blog posts yet.</p>
+            {% endif %}
+        {% else %}
+            <p class="text-gray-400 italic">Login and join this club to view blogs</p>
+        {% endif %}
+    </div>
+
+    <!-- News Tab Content -->
+    <div id="news" class="tab-content hidden">
+        {% if user.is_authenticated %}
+            {% if news_posts%}
+                {% for post in news_posts %}
+                    <div class="p-4 border rounded shadow bg-white mb-4">
+                        <h3 class="text-lg font-semibold">{{ post.title }}</h3>
+                        <p class="text-gray-700 mt-1">{{ post.content|truncatewords:50 }}</p>
+                        <div class="text-sm text-gray-500 mt-2">
+                            By {{ post.author.username }} on {{ post.created_at|date:"F j, Y H:i" }}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- News Pagination -->
+                <div class="flex justify-between mt-4">
+                    {% if news_posts.has_previous %}
+                        <a href="?news_page={{ news_posts.previous_page_number }}&tab=news" class="text-blue-600 hover:underline">Previous</a>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                    {% if news_posts.has_next %}
+                        <a href="?news_page={{ news_posts.next_page_number }}&tab=news" class="text-blue-600 hover:underline">Next</a>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p class="text-gray-400 italic">No news posts yet.</p>
+            {% endif %}
+         {% else %}
+            <p class="text-gray-400 italic">Login and join this club to view news</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+const tabButtons = document.querySelectorAll('.tab-button');
+const tabContents = document.querySelectorAll('.tab-content');
+
+// Function to activate a tab
+function activateTab(tabId) {
+    tabButtons.forEach(b => {
+        b.classList.remove('text-blue-600', 'border-blue-600');
+        b.classList.add('text-gray-500', 'border-transparent');
+    });
+    tabContents.forEach(c => c.classList.add('hidden'));
+
+    const btn = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+    if (btn) {
+        btn.classList.add('text-blue-600', 'border-blue-600');
+        btn.classList.remove('text-gray-500', 'border-transparent');
+        document.getElementById(tabId).classList.remove('hidden');
+    }
+}
+
+// Event listener for tab clicks
+tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        activateTab(btn.dataset.tab);
+    });
+});
+
+// On page load, check URL for ?tab=
+const urlParams = new URLSearchParams(window.location.search);
+const activeTab = urlParams.get('tab') || 'blog';  // default to blog
+activateTab(activeTab);
+</script>
+
