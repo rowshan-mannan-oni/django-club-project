@@ -5,58 +5,70 @@
 {% block content %}
 <div class="max-w-4xl mx-auto bg-white shadow rounded-lg p-6">
 
-    <!-- Top row: Back button + Club name + actions -->
-    <div class="flex justify-between items-start mb-4">
-        <div class="flex flex-col">
-            <a href="{% url 'club:club_list' %}"
-               class="text-blue-600 hover:underline mb-2">
-                ← Back to clubs
-            </a>
-            <h1 class="text-3xl font-bold">{{ club.name }}</h1>
-        </div>
+    <!-- Back button -->
+    <a href="{% url 'club:club_list' %}"
+       class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4">
+        <i class="fa fa-chevron-circle-left text-xl" aria-hidden="true"></i>
+        <span class="pt-0.5">Back to clubs</span>
+    </a>
 
-        <div class="flex gap-2">
+    <!-- Header row: club name (left) + actions (right) -->
+    <div class="flex justify-between items-center mb-6">
 
-            {% if user.is_authenticated and user_role in 'CLUB_ADMIN' %}
+        <!-- Club name -->
+        <h1 class="text-3xl font-bold">
+            {{ club.name }}
+        </h1>
+
+        <!-- Actions (top-right) -->
+        <div class="flex items-center gap-2">
+
+            {% if user.is_authenticated %}
                 <a href="{% url 'membership:membership_list' club.slug %}"
                    class="px-4 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-600">
                     View All Members
                 </a>
-                <a href="{% url 'membership:club_requests' club.slug %}"
-                   class="px-4 py-2 text-black rounded bg-yellow-400 hover:bg-yellow-600">
-                    View All Requests
-                </a>
+                {% if  user_role in 'CLUB_ADMIN' %}
+                    <a href="{% url 'membership:club_requests' club.slug %}"
+                       class="px-4 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-600">
+                        View All Requests
+                    </a>
+                 {% endif %}
             {% endif %}
 
-            <!-- Join Button Section -->
-            <div>
-                {% if not user_role in 'CLUB_ADMIN, CLUB_MODERATOR, CLUB_MEMBER' %}
-                    {% if user.is_authenticated %}
-                        {% if not membership_request_status %}
-                            <form method="post" action="{% url 'membership:request_create' club.slug %}">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                                    Join Club
-                                </button>
-                            </form>
-                        {% else %}
-                            {% if membership_request_status == RequestStatus.PENDING %}
-                                <span class="px-4 py-2 bg-gray-300 text-gray-700 rounded">Request Sent</span>
-                            {% elif membership_request_status == RequestStatus.REJECTED %}
-                                <span class="px-4 py-2 bg-gray-300 text-red-600 rounded">Request Rejected</span>
-                            {% elif membership_request_status == RequestStatus.APPROVED %}
-                                <span class="px-4 py-2 bg-green-600 text-white rounded">Member</span>
-                            {% endif %}
-                        {% endif %}
+            {% if not user_role in 'CLUB_ADMIN, CLUB_MODERATOR, CLUB_MEMBER' %}
+                {% if user.is_authenticated %}
+                    {% if not membership_request_status %}
+                        <form method="post" action="{% url 'membership:request_create' club.slug %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Join Club
+                            </button>
+                        </form>
                     {% else %}
-                        <a href="{% url 'user:login' %}"
-                           class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Login to Join
-                        </a>
+                        {% if membership_request_status == RequestStatus.PENDING %}
+                            <span class="px-4 py-2 bg-gray-300 text-gray-700 rounded">
+                                Request Sent
+                            </span>
+                        {% elif membership_request_status == RequestStatus.REJECTED %}
+                            <span class="px-4 py-2 bg-gray-300 text-red-600 rounded">
+                                Request Rejected
+                            </span>
+                        {% elif membership_request_status == RequestStatus.APPROVED %}
+                            <span class="px-4 py-2 bg-green-600 text-white rounded">
+                                Member
+                            </span>
+                        {% endif %}
                     {% endif %}
+                {% else %}
+                    <a href="{% url 'user:login' %}"
+                       class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Login to Join
+                    </a>
                 {% endif %}
-            </div>
+            {% endif %}
+
         </div>
     </div>
 
@@ -69,11 +81,14 @@
             No description provided.
         </p>
     {% endif %}
+
     {% if user.is_authenticated %}
         {% include "post/post_form.html" %}
     {% endif %}
+
     {% include "post/post_list.html" %}
-    <div class="text-sm text-gray-500">
+
+    <div class="text-sm text-gray-500 mt-6">
         Created by <span class="font-medium">{{ club.created_by.username }}</span>
         on {{ club.created_at|date:"F j, Y" }}
     </div>

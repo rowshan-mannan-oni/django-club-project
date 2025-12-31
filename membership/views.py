@@ -125,7 +125,7 @@ class MembershipListView(CustomLoginRequiredMixin, ListView):
 
         membership = Membership.objects.filter(user=request.user, club=self.club).first()
         print(membership.role)
-        if not membership or membership.role != Role.ADMIN:
+        if not membership:
             return HttpResponseForbidden("You are not allowed to view this page.")
 
         return super().dispatch(request, *args, **kwargs)
@@ -136,7 +136,6 @@ class MembershipListView(CustomLoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["club"] = self.club
-        context["Role"] = Role
         return context
 
 

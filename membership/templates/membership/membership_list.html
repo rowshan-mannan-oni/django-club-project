@@ -5,78 +5,73 @@ Members – {{ club.name }}
 {% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">
+
+<!-- Back button at the top -->
+<a href="{% url 'club:club_list' %}"
+   class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6">
+    <i class="fa fa-chevron-circle-left text-xl" aria-hidden="true"></i>
+    <span class="pt-0.5">Back to clubs</span>
+</a>
+
+<h1 class="text-2xl font-bold mb-6">
     Members of {{ club.name }}
 </h1>
 
-<table class="min-w-full border text-center">
-    <thead>
-        <tr class="bg-gray-100">
-            <th class="px-4 py-2 border">Username</th>
-            <th class="px-4 py-2 border">Role</th>
-            <th class="px-4 py-2 border">Joined At</th>
-            <th class="px-4 py-2 border">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for membership in memberships %}
-        <tr class="{% if not membership.is_active %}bg-gray-50 text-gray-500{% endif %}">
-            <td class="px-4 py-2 border">
-                {{ membership.user.username }}
-                {% if membership.user == request.user %}
-                    <span class="text-xs text-gray-400">(you)</span>
+<div class="space-y-4">
+    {% for membership in memberships %}
+    <div class="flex items-center gap-4">
+        <!-- Card -->
+        <div class="flex-1 bg-white shadow-sm rounded-lg p-4
+                    {% if not membership.is_active %}opacity-70{% endif %}">
+            <div class="flex justify-between items-center">
+                <!-- Left side: username + joined_at -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                    <span class="font-medium text-gray-800">{{ membership.user.username }}</span>
+                    {% if membership.user == request.user %}
+                        <span class="text-xs text-gray-400">(you)</span>
+                    {% endif %}
+                    <span class="text-sm text-gray-500">{{ membership.joined_at|date:"F j, Y H:i" }}</span>
+                </div>
+
+                <!-- Right side: status + role -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span class="px-3 py-1 rounded-full text-sm font-medium
+                                 {% if membership.is_active %}bg-green-100 text-green-800
+                                 {% else %}bg-red-100 text-red-800{% endif %}">
+                        {% if membership.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+
+                    <span class="text-sm font-medium text-gray-600">{{ membership.get_role_display }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action buttons outside card -->
+        {% if membership.is_active and membership.role != Role.ADMIN and membership.user != request.user %}
+        <div class="flex-shrink-0 flex flex-col gap-2">
+            <form method="post" action="{% url 'membership:change_role' club.slug membership.id %}" class="inline-block">
+                {% csrf_token %}
+                {% if membership.is_member %}
+                    <input type="hidden" name="action" value="promote">
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors duration-150">
+                        Promote
+                    </button>
+                {% elif membership.is_moderator %}
+                    <input type="hidden" name="action" value="demote">
+                    <button type="submit" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600 transition-colors duration-150">
+                        Demote
+                    </button>
                 {% endif %}
-            </td>
+            </form>
+        </div>
+        {% endif %}
 
-            <td class="px-4 py-2 border font-medium">
-                {{ membership.get_role_display }}
-            </td>
+    </div>
+    {% empty %}
+    <div class="text-center text-gray-500 italic">
+        No members found.
+    </div>
+    {% endfor %}
+</div>
 
-            <td class="px-4 py-2 border">
-                {{ membership.joined_at|date:"F j, Y H:i" }}
-            </td>
-
-            <td class="px-4 py-2 border">
-                {% if membership.is_active %}
-                    <span class="text-green-600 font-semibold">Active</span>
-                {% else %}
-                    <span class="text-red-600 font-semibold">Inactive</span>
-                {% endif %}
-            </td>
-            <td class="px-4 py-2 border">
-                {% if membership.is_active and membership.role != Role.ADMIN and membership.user != request.user %}
-                    <form method="post" action="{% url 'membership:change_role' club.slug membership.id %}" class="inline-block">
-                        {% csrf_token %}
-                        {% if membership.role == Role.MEMBER %}
-                            <input type="hidden" name="action" value="promote">
-                            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-                                Promote
-                            </button>
-                        {% elif membership.role == Role.MODERATOR %}
-                            <input type="hidden" name="action" value="demote">
-                            <button type="submit" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600">
-                                Demote
-                            </button>
-                        {% endif %}
-                    </form>
-                {% else %}
-                    <span class="text-gray-400">—</span>
-                {% endif %}
-            </td>
-
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4" class="px-4 py-2 border text-center">
-                No members found.
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<a href="{% url 'club:club_detail' club.slug %}"
-   class="text-blue-600 hover:underline mt-4 inline-block">
-    ← Back to Club
-</a>
 {% endblock %}

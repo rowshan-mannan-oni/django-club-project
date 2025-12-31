@@ -22,3 +22,11 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.type})"
+
+    @property
+    def is_blog(self):
+        return self.type == PostType.BLOG
+
+    @property
+    def is_news(self):
+        return self.type == PostType.NEWS

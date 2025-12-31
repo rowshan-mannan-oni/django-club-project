@@ -19,8 +19,16 @@ class Membership(models.Model):
         return f"{self.user.username} - {self.club.name} ({self.role})"
 
     @property
-    def is_admin_or_moderator(self):
-        return self.role == Role.ADMIN or self.role == Role.MODERATOR
+    def is_member(self):
+        return self.role == Role.MEMBER
+
+    @property
+    def is_admin(self):
+        return self.role == Role.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == Role.MODERATOR
 
 
 class MembershipRequest(models.Model):

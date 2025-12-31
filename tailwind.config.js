@@ -1,9 +1,9 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js (ensure content paths include Django templates)
 module.exports = {
   content: [
-    './templates/**/*.html',
-    './**/templates/**/*.html',
-    './static/js/**/*.js',
+    "./templates/**/*.html",
+    "./**/templates/**/*.html",
+    "./static/src/**/*.{html,js,css}"
   ],
   theme: {
     extend: {
